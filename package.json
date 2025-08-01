@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx app.ts"
+    "dev": "npx tsx app.ts",
+    "work": "npx tsx testWorkflow.ts"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,12 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.767.0",
     "@aws-sdk/lib-dynamodb": "^3.767.0",
+     "@langchain/community": "latest",
+    "@langchain/core": "latest",
+    "@langchain/google-genai": "^0.2.14",
+    "@langchain/langgraph": "^0.3.7",
+    "@langchain/langgraph-supervisor": "^0.0.15",
+    "@langchain/openai": "latest",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
@@ -22,16 +29,24 @@
     "express-session": "^1.18.1",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "langchain": "^0.3.30",
     "md5": "^2.3.0",
     "memorystore": "^1.6.7",
     "nodemailer": "^6.10.0",
-    "uuid": "^11.1.0"
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-google-oidc": "^0.1.0",
+    "passport-local": "^1.0.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.3",
     "@types/express-session": "^1.18.2",
     "@types/md5": "^2.3.5",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/passport-local": "^1.0.38",
     "tsx": "^4.20.3"
   }
 }

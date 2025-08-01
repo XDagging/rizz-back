@@ -1,0 +1,1 @@
+For the voice and messages part, someone in theory if they wanted to, could just send an api request with entirely different conversation flows to get a higher score. Let's just assume that neglible for now.

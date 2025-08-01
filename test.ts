@@ -1,0 +1,147 @@
+// const express = require('express');
+// const router = express.Router();
+import { locateEntry, updateEntry } from "./databaseFunctions";
+import express from "express";
+const {authenticateUser, isEmail, isPassword, isString, isNumber, reportError, craftRequest, setCookie, sendEmail, generateCode} = require('./functions.js');
+import type { User } from "./types";
+import { UpdateKinesisStreamingDestinationCommand } from "@aws-sdk/client-dynamodb";
+// import { authenticate } from "passport";
+import type { Test } from "./types"
+import { generateResponse } from "./testWorkflow"
+
+export const testRouter = express.Router();
+
+
+
+
+// const TestSessions = new Map<string,?>()
+
+
+
+
+
+
+testRouter.get("/", async (req,res) => {
+    console.log("get test was called via router")
+    authenticateUser(req).then(async(user: "No user found" | User) => {
+        if (user==="No user found") {
+            res.status(400).send(craftRequest(400));
+        } else {
+
+
+            console.log('amount of tests available', user.testsAvailable<=0)
+            if (user.testsAvailable>0) {
+                console.log("inside tests avialable if")
+                const testsList: any = await locateEntry("uuid", "ALL_TESTS")
+
+                
+
+                const allAvailableTests = testsList.testList;
+             
+                const takenTestUuids = new Set(user.allTests);
+
+                const availableNotTakenTests = allAvailableTests.filter(
+                    (test: Test) => !takenTestUuids.has(test.uuid)
+                );
+
+                
+                if (availableNotTakenTests.length>0) {
+                    console.log(availableNotTakenTests)
+                    const indexChosen = Math.floor(Math.random()*availableNotTakenTests.length)
+                    console.log("i chose this index", indexChosen)
+                    const chosenTest = availableNotTakenTests[indexChosen]
+
+                    console.log("chosenTest", chosenTest)
+                    const test = await locateEntry("uuid", chosenTest)
+
+                    updateEntry("uuid", user.uuid,
+                        {
+                            testsAvailable: user.testsAvailable-1
+                        }
+                    )
+
+                    res.status(200).send(craftRequest(200, {uuid: chosenTest, test: test}))
+
+                } else {
+                    res.status(400).send(craftRequest(400, "come back later"))
+                }
+                
+               
+                
+
+
+                
+                // const test = await generateTest()
+
+
+
+            } else {
+                res.status(400).send(craftRequest(400, "out of available tests"))
+            }
+            
+
+
+
+
+
+        }
+    })
+})
+
+testRouter.post("/aiResponse", async(req,res) => {
+
+    const {testId, questionNumber, messages} = req.body;
+
+    authenticateUser(req).then(async(user) => {
+        if (user === "No user found") {
+            res.status(400).send(craftRequest(400))
+        } else {
+
+            console.log("testid", testId);
+            console.log("questionNumber", typeof questionNumber === "number");
+            console.log("Array", Array.isArray(messages))
+            if (testId&&typeof questionNumber === "number"&&Array.isArray(messages)) {
+
+                // It's a valid request then
+
+
+                const test: any = await locateEntry("uuid", testId);
+                if (test!=="") {
+                        console.log("we r here")
+                const allQuestions = test.fullTest;
+
+                const questionAsked = allQuestions["slideIntoDmsQuestions"][questionNumber];
+
+
+                const response = await generateResponse(messages, questionAsked.prompt,questionAsked.question);
+
+                res.status(200).send(craftRequest(200, response));
+
+                } else {
+                    res.status(400).send(craftRequest(400));
+                }
+            
+
+
+
+                
+
+
+
+            } else {
+                console.log("we failed the initial")
+                res.status(400).send(craftRequest(400));
+            }
+
+
+
+
+
+
+
+        }
+    })
+
+
+
+})

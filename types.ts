@@ -29,8 +29,38 @@ export type ChangePasswordBody = {
 }
 
 
+export type MessageType = {
+    side: "left" | "right",
+    message: string,
+    loading?: boolean;
+}
+
+export type BrowserUser = {
+    uuid: string;
+    name: string;
+    email: string;
+    highestScore: number;
+    timesTaken: number;
+    testsAvailable: number;
+    allTests: any[];
+    imgUrl: string;
+
+}
+
+export type Test = {
+    uuid: string,
+    fullTest: {
+        mcqQuestions: any[],
+        slideIntoDmsQuestions: any[],
+        realTimeLiveQuestion: any
+    };
+}
 
 
+export type TestList = {
+    uuid: "ALL_TESTS",
+    testList: string[]
+}
 
 export type User = {
     uuid: string;
@@ -39,6 +69,13 @@ export type User = {
     email: string;
     password: string;
     passwordCode?: number;
+    imgUrl: string;
+    timesTaken: number;
+    highestScore: number;
+    testsAvailable: number;
+
+    allTests: string[];
+
 }
 
 

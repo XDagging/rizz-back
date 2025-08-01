@@ -17,23 +17,32 @@ function authenticateUser(req: Request) {
         if (!sessionId) {
             resolve("No user found");
         } else {
-            req.sessionStore.get(sessionId, (err, session: any) => {
-                if (err) {
-                    console.log(err);
-                    resolve("No user found");
-                } else {
-                    if (!session) {
-                        resolve("No user found");
-                    } else {
-                        const currentUser = session?.user;
-                        if (!currentUser) {
-                            resolve("No user found");
-                        } else {
-                            resolve(currentUser);
-                        }
-                    }
-                }
-            });
+            console.log("Inside auth func", req.user)
+
+            if (req.user) {
+                resolve(req.user)
+            } else {
+                resolve("No user found")
+            }
+            // req.sessionStore.get(sessionId, (err, session: any) => {
+            //     if (err) {
+            //         console.log(err);
+            //         resolve("No user found");
+            //     } else {
+            //         // console.log("we got here", session)
+            //         if (!session) {
+            //             resolve("No user found");
+            //         } else {
+            //             const currentUser = session?.user;
+            //             console.log("this was the current user", currentUser)
+            //             if (!currentUser) {
+            //                 resolve("No user found");
+            //             } else {
+            //                 resolve(currentUser);
+            //             }
+            //         }
+            //     }
+            // });
         }
     });
 }

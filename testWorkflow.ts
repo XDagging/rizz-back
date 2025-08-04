@@ -285,10 +285,10 @@ if (match && match[1]) {
 
 
 async function convertMessages(messages: MessageType[]) {
-
+    console.log("this is the messages sent", messages)
     let fullMessages = ``;
 
-
+    
     await messages.forEach((msg: MessageType) => {
         if (msg.side==="left") {
             fullMessages+=`You: ${msg.message}`
@@ -345,6 +345,159 @@ Respond with exactly what you'd send as a message — no extra explanation, tags
 
 
 }
+
+// const score = await gradeTest(testId, mcqAnswers, dmsAnswers, liveAnswers)
+
+
+
+export async function gradeTest(testId: string, mcqAnswers: string[], dmsAnswers: {
+    messages: any[]
+}[], liveAnswers: MessageType[], test: any) {
+    let parsedMcq = ""
+
+    await mcqAnswers.forEach((s, i) => {
+        parsedMcq += `${i+1}: ${s!=="" ? s : "*blank*"}`
+        parsedMcq+="\n\n"
+    })
+
+
+
+
+
+    console.log("this is the parsed mcq", parsedMcq)
+    let allDmsAnswers: string[] = []
+
+    for (let i = 0; i < dmsAnswers.length; i++) {
+        try {
+            const parsedDms = await convertMessages(dmsAnswers[i].messages)
+            allDmsAnswers = [...allDmsAnswers, parsedDms]
+        } catch(e) {
+            continue;
+        }
+        
+    }
+
+    let parsedDms = ``;
+
+    allDmsAnswers.forEach((answer,i) => {
+        parsedDms += `${i+1}: ${answer}`
+        parsedDms += "\n\n"
+    })
+
+    console.log("parsed dms", parsedDms)
+    
+
+    const parsedLive = await convertMessages(liveAnswers)
+
+    
+
+    console.log("parsed mcq", parsedMcq)
+    console.log("parsed live", parsedLive)
+    console.log("parsed dms", parsedDms)
+ 
+    const prompt = `You are an expert evaluator for a standardized assessment called the "Rizz SAT", designed to measure an individual's dating skills — also known as their "rizz" or game. The test mimics the SAT and scores test-takers across two key categories:
+
+- **charm** — How well they build attraction, connection, and interest through personality, emotional intelligence, and charisma.
+- **execution** — How effectively they apply their charm in real-world scenarios, including tone, timing, and conversational flow.
+
+Your goal is not to be harsh — this is a developmental test. Reward effort, intent, and adaptability, not just perfect performance. If someone made a decent attempt and showed promise, give them credit. Do not punish for awkwardness if they clearly tried and the interaction had some potential.
+
+---
+
+### 📚 1. Multiple Choice Section (MCQ)
+
+- This tests knowledge of flirting, emotional intelligence, and social dynamics.
+- You'll be given the test-taker's answers as a list like ["A", "D", "C", ...].
+- Assume this section is worth **600 points total**, distributed evenly across all questions (typically 16-20).
+- Give partial credit based on how many were correct. Each correct answer is worth **600 ÷ total questions**, rounded to the nearest whole number.
+
+---
+
+### 💬 2. Slide Into DMs Section
+
+- This simulates message-based flirting with multiple scenarios.
+- Each scenario has a prompt with a personality description.
+- Responses should be judged on:
+  - **Charm** (playfulness, tone, social awareness)
+  - **Execution** (ability to initiate or maintain a natural conversation)
+- This section is worth a total of **400 points**.
+  - Divide the 400 points evenly across all DM scenarios.
+  - For each, award partial credit based on effort, relevance, and how well it fit the scenario.
+  - **Round down to the nearest multiple of 10** for each response score.
+
+> 💬 If the conversation ends in a hard rejection or block, award **0 points** for that response.
+
+---
+
+### 🗣️ 3. Real-Time Live Scenario
+
+- This simulates an in-person or live chat interaction.
+- You’ll be given a transcript of a short conversation.
+- Evaluate how well the test-taker adapted to tone, built rapport, and carried the conversation naturally.
+- This section is worth **200 points total**, split between:
+  - **Charm**: 100 points
+  - **Execution**: 100 points
+- Reward creativity, warmth, and effort, even if the delivery wasn't perfect.
+
+> Again, if the test-taker was ignored or blocked immediately, assign **0 points** for this section.
+
+---
+
+### 🎯 Final Scoring Instructions:
+
+At the end, return a JSON object in this format:
+
+json
+{
+  "charm": number between 200-800 in increments of 10,
+  "execution": number between 200-800 in increments of 10
+}
+Every test-taker receives a minimum of 200 in each category.
+
+Add up the partial points from MCQ, DMs, and the live section.
+
+Use your judgment to split the total between charm and execution, based on the performance across the sections.
+
+Round both scores to the nearest multiple of 10.
+
+Do not include any explanation or commentary. Only return the JSON object.
+
+Inputs:
+Here is the full test:
+${test}
+
+Here is the MCQ answers:
+${parsedMcq}
+
+Here is the DMs answers:
+${parsedDms}
+
+Here is the one-on-one live transcript:
+${parsedLive}`
+
+
+    const response = await llm.invoke(prompt);
+
+    const match = String(response.content).match(/```json([\s\S]*?)```/);
+    if (match && match[1]) {
+        const parsedJson  = JSON.parse(match[1]);
+        console.log(parsedJson)
+        return parsedJson
+    } else {
+        console.log("the parsed json didn't work", match)
+        return {
+            charm: 0,
+            execution: 0
+        }
+    }
+
+    // return String(response.content)
+
+
+}
+
+
+
 
 
 

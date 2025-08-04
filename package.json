@@ -13,8 +13,9 @@
   "type": "commonjs",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.767.0",
+    "@aws-sdk/client-polly": "^3.858.0",
     "@aws-sdk/lib-dynamodb": "^3.767.0",
-     "@langchain/community": "latest",
+    "@langchain/community": "latest",
     "@langchain/core": "latest",
     "@langchain/google-genai": "^0.2.14",
     "@langchain/langgraph": "^0.3.7",
@@ -28,6 +29,7 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "fs": "^0.0.1-security",
+    "html2canvas": "^1.4.1",
     "https": "^1.0.0",
     "langchain": "^0.3.30",
     "md5": "^2.3.0",

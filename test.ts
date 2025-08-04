@@ -7,6 +7,7 @@ import type { User } from "./types";
 import { UpdateKinesisStreamingDestinationCommand } from "@aws-sdk/client-dynamodb";
 // import { authenticate } from "passport";
 import type { Test } from "./types"
+import { gradeTest } from "./testWorkflow";
 import { generateResponse } from "./testWorkflow"
 
 export const testRouter = express.Router();
@@ -44,7 +45,7 @@ testRouter.get("/", async (req,res) => {
                     (test: Test) => !takenTestUuids.has(test.uuid)
                 );
 
-                
+
                 if (availableNotTakenTests.length>0) {
                     console.log(availableNotTakenTests)
                     const indexChosen = Math.floor(Math.random()*availableNotTakenTests.length)
@@ -144,4 +145,110 @@ testRouter.post("/aiResponse", async(req,res) => {
 
 
 
+})
+
+
+
+testRouter.post("/voiceResponse", async(req,res) => {
+    try {
+
+          const {testId, messages} = req.body;;
+
+        console.log("this was the testId", typeof testId === 'string')
+        console.log("this were the messages", Array.isArray(messages))
+        authenticateUser(req).then(async(user) => {
+            if (user==="No user found") {
+                res.status(403).send(craftRequest(403))
+            } else {
+
+                if (typeof testId === "string" && Array.isArray(messages)) {
+                     const test: any = await locateEntry("uuid", testId);
+                    if (test!=="") {
+                        console.log("we r here")
+                        const allQuestions = test.fullTest;
+                        const questionAsked = allQuestions["realTimeLiveQuestion"];
+                        const response = await generateResponse(messages, questionAsked.prompt, questionAsked.question )
+                        
+                        res.status(200).send(craftRequest(200, response));
+
+
+                    }
+
+
+         } else {
+
+            console.log("Invalid testId or messages");
+
+        }
+
+               
+        }
+    })
+      
+
+
+
+    } catch(e){
+
+
+
+
+        console.log("This is an error:", e)
+
+        res.status(400).send(craftRequest(400));
+    }
+
+
+
+})
+
+
+testRouter.post("/submitTest", (req,res) => {
+    try {
+        authenticateUser(req).then(async(user) => {
+            if (user === "No user found") {
+                res.status(400).send(craftRequest(400))
+            } else {
+                const {testId, mcqAnswers, dmsAnswers,liveAnswers} = req.body;
+                console.log(req.body)
+                const test : any = locateEntry("uuid", testId);
+                
+
+                const score = await gradeTest(testId, mcqAnswers, dmsAnswers, liveAnswers, test)
+
+                console.log("this is the user saved", user)
+                await updateEntry("uuid", user.uuid,
+                    {
+                        timesTaken: user.timesTaken+1,
+                        highestScore: score.charm+score.execution > user.highestScore ? Number(score.charm+score.execution) : user.highestScore,
+                        allTests: user.allTests ? [...user.allTests, {...score, date: Date.now()}] : [{...score, date: Date.now()}]
+                    }
+                    
+                );
+
+                res.status(200).send(craftRequest(200));
+
+
+
+            
+            
+            
+            
+            }
+        })
+
+        
+
+
+
+
+
+
+    } catch(e) {
+
+        console.log(e)
+        res.status(400).send(craftRequest(400));
+    
+    
+    }
 })

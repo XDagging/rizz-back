@@ -103,7 +103,7 @@ if (process.env.NODE_ENV === "DEV") {
     };    
 
     app.use(cors({
-        origin: process.env.PROD_URL,
+        origin: "https://toomanyheys.com",
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true
     }));

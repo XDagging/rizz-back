@@ -271,7 +271,7 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
     // Successful auth
-     const redirectUrl = process.env.NODE_ENV?.toLowerCase() === "dev" ? "http://localhost:5173" : process.env.PROD_URL 
+     const redirectUrl = process.env.NODE_ENV?.toLowerCase() === "dev" ? "http://localhost:5173" : process.env.FRONT_URL
 
     //     if (req.user) {
     //     req.logIn(req.user, (e) => {

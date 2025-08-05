@@ -328,16 +328,16 @@ Only escalate warmth after the other person earns it.
 
 Do NOT end your sentences with questions unless you truly want the answer. Let your replies feel confident and a little hard to read.
 
-Here's the conversation so far:
-${readableMessages}
-
 Your tone and personality should follow this profile:
 ${personality}
+
+Here's the conversation so far:
+${readableMessages}
 
 Assume you're texting back after reading this message:
 ${readableMessages.at(-1)}
 
-If the person is being rude, or you're really bored, send *blocked*
+If the person is being rude, or it seems fitting, send *blocked* to end the conversation. Do not send blocked if the person says goodbye or some other way to end the conversation. Blocked should only be sent if the user said something offense, or makes you feel uncomfortable.
 
 Respond with exactly what you'd send as a message — no extra explanation, tags, or "You:"`;
 
@@ -436,7 +436,7 @@ Your goal is not to be harsh — this is a developmental test. Reward effort, in
 ### 🗣️ 3. Real-Time Live Scenario
 
 - This simulates an in-person or live chat interaction.
-- You’ll be given a transcript of a short conversation.
+- You'll be given a transcript of a short conversation.
 - Evaluate how well the test-taker adapted to tone, built rapport, and carried the conversation naturally.
 - This section is worth **200 points total**, split between:
   - **Charm**: 100 points

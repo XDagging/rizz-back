@@ -14,7 +14,7 @@ export async function addEntry(entry: User | Test | TestList, tableName=process.
         TableName: tableName,
         Item: entry
     }))
-    return true;
+    return response.Attributes;
 }
 export async function removeEntry(keyName: string, key: string, tableName=process.env.DYNAMO_NAME) {
     const response = await documentClient.send(new DeleteCommand({

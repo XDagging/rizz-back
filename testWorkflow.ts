@@ -57,6 +57,8 @@ each mcq question should be the following:
     answer: correspondingletter
 }
 
+the correct answer should be random, it shouldn't the same option every single time. 
+
 each "slide into dms" question should have the following format: 
 
 
@@ -71,7 +73,7 @@ each "slide into dms" question should have the following format:
 each "real time live" question should be in the following format: 
 
 {
-    prompt: "describe how the girl should act in vivid detail"
+    prompt: "describe how the girl should act in vivid detail. give the girl's backstory, their experiences, and provide the question field to an extent. This prompt should explain the current situation for this interaction. "
     question: "the situation/scenario in which this is happening",
     goal: "some goal that the user should try to achieve in the conversation",
 }
@@ -131,6 +133,8 @@ answer: one of "A", "B", "C", or "D"
 If a question has no clear correct answer or more than one reasonable answer, flag it as ambiguous.
 
 If any required field is missing, malformed, or duplicated, flag it.
+
+If there are any repeats of any questions
 
 🔹 2. slideIntoDmsQuestions (3 total)
 
@@ -501,6 +505,10 @@ ${parsedLive}`
 
 
 
+// generateTest()
+// generateTest()
+// generateTest()
+// generateTest()
 // generateTest()  
 
 

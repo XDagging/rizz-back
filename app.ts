@@ -120,7 +120,7 @@ passport.serializeUser((user: any, done) => {
 });
 
 passport.deserializeUser(async (uuid: string, done) => {
-    console.log("this is being called")
+    console.log("DESERIALIZE FUNCTION CALLED", uuid)
   try {
     console.log("Deserializing user with uuid:", uuid);
     const user = await locateEntry("uuid", uuid);
@@ -157,10 +157,11 @@ async (accessToken, refreshToken, profile, cb) => {
     console.log('name', name);
     console.log(profilePic)
 
-    const user = await locateEntry("uuid", profile.id);
+    const user = await locateEntry("emailHash", md5(email.trim().toLowerCase()));
+   
     console.log("User right now", user)
-    if (user==="") {
-      const u = await addEntry({
+    if (Array.isArray(user)&&user.length===0) {
+      const newUser = {
         uuid: profile.id,
         name: cmod.encrypt(name.toLowerCase().trim()),
         email: cmod.encrypt(email),
@@ -173,16 +174,23 @@ async (accessToken, refreshToken, profile, cb) => {
         password: "",
 
         // profilePic
-      });
-       return cb(null, u);
-    }
-    if (!Array.isArray(user)) {
+      }
+      const u = await addEntry(newUser);
+      console.log("just finished adding new entry", u)
+      return cb(null, newUser);
+    } else if (typeof user[0] !== "undefined") {
         console.log("this is the user being passed", user)
-        return cb(null, user);
+        return cb(null, user[0]);
     } else {
-        console.log("the user is an array")
-        cb("For some reason user is an array here.")
+        cb("Some error for some reason")
     }
+    // console.log()
+    // if (Array.isArray(user)&&) {
+        
+    // } else {
+    //     console.log("the user is an array")
+    //     cb("For some reason user is an array here.")
+    // }
     
   } catch (err) {
     return cb(err);

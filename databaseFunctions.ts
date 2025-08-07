@@ -5,10 +5,10 @@ import { ScanCommand, PutCommand, DeleteCommand, GetCommand, UpdateCommand, Quer
 import {documentClient} from "./dynamodbClient"
 // const { table } = require('console');
 import fs from "fs";
-import type { User, LocateEntryType, Test, TestList } from "./types"
+import type { User, LocateEntryType, Test, TestList, LeaderboardList } from "./types"
 import { ta } from "zod/v4/locales"
 
-export async function addEntry(entry: User | Test | TestList, tableName=process.env.DYNAMO_NAME) {
+export async function addEntry(entry: User | Test | TestList | LeaderboardList, tableName=process.env.DYNAMO_NAME) {
 
     // Add a check to see if the user is appropiately being handled here
     const response = await documentClient.send(new PutCommand({

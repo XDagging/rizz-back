@@ -46,7 +46,7 @@ import type { Options, RegisterBody, User, LoginBody, CodeBody, LocateEntryEntry
 if (!process.env.ENCRYPTION_KEY) {
     throw new Error("Encryption key isn't set. Add it now.");
 }
-const cmod = new Cryptr(process.env.ENCRYPTION_KEY);
+export const cmod = new Cryptr(process.env.ENCRYPTION_KEY);
 
 // Things to do
 

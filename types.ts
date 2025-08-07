@@ -78,6 +78,17 @@ export type User = {
 
 }
 
+export type LeaderboardPlayer = {
+    uuid: string,
+    name: string,
+    score: number,
+}
+
+
+export type LeaderboardList = {
+    uuid: string,
+    list: LeaderboardPlayer[]
+}
 
 // At the function
 export type LocateEntryType = Promise<User | User[] | "">;

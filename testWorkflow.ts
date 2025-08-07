@@ -453,7 +453,7 @@ Scoring:
 - Judge:
   - Adaptability and flow
   - Warmth, presence, and rapport
-  - Creativity and charm under pressure
+  - Creativity and charm under pressure 
 
 Score from **0 to 10**:
 - 10: Natural, engaging, achieved the intended outcome

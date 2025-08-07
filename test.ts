@@ -114,7 +114,7 @@ testRouter.post("/aiResponse", async(req,res) => {
                 const questionAsked = allQuestions["slideIntoDmsQuestions"][questionNumber];
 
 
-                const response = await generateResponse(messages, questionAsked.prompt,questionAsked.question);
+                const response = await generateResponse(messages, questionAsked.prompt,questionAsked.question, questionAsked.goal);
 
                 res.status(200).send(craftRequest(200, response));
 
@@ -167,7 +167,7 @@ testRouter.post("/voiceResponse", async(req,res) => {
                         console.log("we r here")
                         const allQuestions = test.fullTest;
                         const questionAsked = allQuestions["realTimeLiveQuestion"];
-                        const response = await generateResponse(messages, questionAsked.prompt, questionAsked.question )
+                        const response = await generateResponse(messages, questionAsked.prompt, questionAsked.question, questionAsked.goal )
                         
                         res.status(200).send(craftRequest(200, response));
 
@@ -211,7 +211,7 @@ testRouter.post("/submitTest", (req,res) => {
             } else {
                 const {testId, mcqAnswers, dmsAnswers,liveAnswers} = req.body;
                 console.log(req.body)
-                const test : any = locateEntry("uuid", testId);
+                const test : any = await locateEntry("uuid", testId);
                 
 
                 const score = await gradeTest(testId, mcqAnswers, dmsAnswers, liveAnswers, test)

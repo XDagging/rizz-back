@@ -4,8 +4,9 @@ import { ScanCommand, PutCommand, DeleteCommand, GetCommand, UpdateCommand, Quer
 // const documentClient = require("./dynamodbClient");
 import {documentClient} from "./dynamodbClient"
 // const { table } = require('console');
-
+import fs from "fs";
 import type { User, LocateEntryType, Test, TestList } from "./types"
+import { ta } from "zod/v4/locales"
 
 export async function addEntry(entry: User | Test | TestList, tableName=process.env.DYNAMO_NAME) {
 
@@ -25,6 +26,22 @@ export async function removeEntry(keyName: string, key: string, tableName=proces
     }))
     return true;
 }
+
+
+export async function getAllEntries(tableName=process.env.DYNAMO_NAME) : Promise<any> {
+    return new Promise(async(resolve) => {
+        const response = await documentClient.send(new ScanCommand({
+            TableName: tableName
+        }))
+        // fs.writeFileSync("data.txt", String(JSON.stringify(response)))
+        // console.log("inside entries func", response);
+        
+        // response.
+        resolve(response.Items || []);
+    })
+    
+}
+
 
 
 

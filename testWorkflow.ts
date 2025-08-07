@@ -309,7 +309,7 @@ async function convertMessages(messages: MessageType[]) {
 }
 
 
-export async function generateResponse(messages: MessageType[], personality: string, situation: string) {
+export async function generateResponse(messages: MessageType[], personality: string, situation: string, goal: string) {
     console.log("this is your personality", personality);
     const readableMessages = await convertMessages(messages);
 
@@ -334,10 +334,13 @@ ${personality}
 Here's the conversation so far:
 ${readableMessages}
 
+
 Assume you're texting back after reading this message:
 ${readableMessages.at(-1)}
 
 If the person is being rude, or it seems fitting, send *blocked* to end the conversation. Do not send blocked if the person says goodbye or some other way to end the conversation. Blocked should only be sent if the user said something offense, or makes you feel uncomfortable.
+
+If you think that the other person has achieved this following objective "${goal}", reply with *success*.
 
 Respond with exactly what you'd send as a message — no extra explanation, tags, or "You:"`;
 
@@ -356,25 +359,43 @@ Respond with exactly what you'd send as a message — no extra explanation, tags
 
 export async function gradeTest(testId: string, mcqAnswers: string[], dmsAnswers: {
     messages: any[]
-}[], liveAnswers: MessageType[], test: any) {
+}[] | any[], liveAnswers: MessageType[], test: any) {
     let parsedMcq = ""
 
-    await mcqAnswers.forEach((s, i) => {
-        parsedMcq += `${i+1}: ${s!=="" ? s : "*blank*"}`
-        parsedMcq+="\n\n"
-    })
+    // await mcqAnswers.forEach((s, i) => {
+    //     parsedMcq += `${i+1}: ${s!=="" ? s : "*blank*"}`
+    //     parsedMcq+="\n\n"
+    // })
+    console.log(test);
+
+    // grade mcq portion first cuz ai is clearly bad at it.
+    const amountPerQuestion = Number(600/test.fullTest.mcqQuestions.length);
+    let totalEarned = 0;
+    for (let i=0; i<test.fullTest.mcqQuestions.length; i++) {
+        if (i<=mcqAnswers.length-1&&mcqAnswers[i].toLowerCase()===test.fullTest.mcqQuestions[i].answer.toLowerCase()) {
+            totalEarned+=amountPerQuestion;
+        } else {
+            console.log("You got one wrong bud");
+        }
+
+    }
 
 
+    console.log("This is the total amount earneD", totalEarned)
 
 
-
-    console.log("this is the parsed mcq", parsedMcq)
+    // console.log("this is the parsed mcq", parsedMcq)
     let allDmsAnswers: string[] = []
 
     for (let i = 0; i < dmsAnswers.length; i++) {
         try {
-            const parsedDms = await convertMessages(dmsAnswers[i].messages)
-            allDmsAnswers = [...allDmsAnswers, parsedDms]
+            if (dmsAnswers[i].messages) {
+                const parsedDms = await convertMessages(dmsAnswers[i].messages)
+                allDmsAnswers = [...allDmsAnswers, parsedDms]
+            } else {
+                // do nothing
+            }
+         
         } catch(e) {
             continue;
         }
@@ -398,86 +419,78 @@ export async function gradeTest(testId: string, mcqAnswers: string[], dmsAnswers
     console.log("parsed mcq", parsedMcq)
     console.log("parsed live", parsedLive)
     console.log("parsed dms", parsedDms)
- 
-    const prompt = `You are an expert evaluator for a standardized assessment called the "Rizz SAT", designed to measure an individual's dating skills — also known as their "rizz" or game. The test mimics the SAT and scores test-takers across two key categories:
+ const prompt = `You're an expert evaluator for a standardized dating assessment called the "Rizz SAT." This test measures an individual's dating competence — also known as their "game" — through a mix of messaging simulations and live conversation scenarios.
 
-- **charm** — How well they build attraction, connection, and interest through personality, emotional intelligence, and charisma.
-- **execution** — How effectively they apply their charm in real-world scenarios, including tone, timing, and conversational flow.
+The test evaluates two core traits:
 
-Your goal is not to be harsh — this is a developmental test. Reward effort, intent, and adaptability, not just perfect performance. If someone made a decent attempt and showed promise, give them credit. Do not punish for awkwardness if they clearly tried and the interaction had some potential.
+- **Charm** — The ability to create attraction through personality, humor, emotional intelligence, and authenticity.
+- **Execution** — The skill of putting that charm into practice effectively: timing, conversational flow, and reading the moment.
 
----
-
-### 📚 1. Multiple Choice Section (MCQ)
-
-- This tests knowledge of flirting, emotional intelligence, and social dynamics.
-- You'll be given the test-taker's answers as a list like ["A", "D", "C", ...].
-- Assume this section is worth **600 points total**, distributed evenly across all questions (typically 16-20).
-- Give partial credit based on how many were correct. Each correct answer is worth **600 ÷ total questions**, rounded to the nearest whole number.
+🧠 This is not about perfection. The goal is developmental — reward people for effort, intention, and emotional insight. If they made a real attempt, gave it personality, or showed promise, that matters. Humor, creativity, and social awareness should be celebrated. But if they completely missed the moment, were ignored, or blocked, that’s a clear miss.
 
 ---
 
-### 💬 2. Slide Into DMs Section
+### 💬 Slide Into DMs Section
 
-- This simulates message-based flirting with multiple scenarios.
-- Each scenario has a prompt with a personality description.
-- Responses should be judged on:
-  - **Charm** (playfulness, tone, social awareness)
-  - **Execution** (ability to initiate or maintain a natural conversation)
-- This section is worth a total of **400 points**.
-  - Divide the 400 points evenly across all DM scenarios.
-  - For each, award partial credit based on effort, relevance, and how well it fit the scenario.
-  - **Round down to the nearest multiple of 10** for each response score.
+- You'll be given multiple DM scenarios.
+- Each has a short prompt and a message thread.
+- Judge each on:
+  - **Charm** (tone, personality, playfulness, originality)
+  - **Execution** (opener strength, relevance, ability to move the convo forward)
 
-> 💬 If the conversation ends in a hard rejection or block, award **0 points** for that response.
-
----
-
-### 🗣️ 3. Real-Time Live Scenario
-
-- This simulates an in-person or live chat interaction.
-- You'll be given a transcript of a short conversation.
-- Evaluate how well the test-taker adapted to tone, built rapport, and carried the conversation naturally.
-- This section is worth **200 points total**, split between:
-  - **Charm**: 100 points
-  - **Execution**: 100 points
-- Reward creativity, warmth, and effort, even if the delivery wasn't perfect.
-
-> Again, if the test-taker was ignored or blocked immediately, assign **0 points** for this section.
+Scoring:
+- Rate **each DM thread from 0 to 10** based on effort and effectiveness.
+- Round **each score down** to the nearest **multiple of 10**.
+- If the person gets rejected or blocked, assign **0** for that thread.
+- Then sum the individual thread scores (max 30 total).
+- If a DM thread ends with *success*, rate that dm thread with a 10.
 
 ---
 
-### 🎯 Final Scoring Instructions:
+### 🗣️ Real-Time Live Scenario
 
-At the end, return a JSON object in this format:
+- You’ll get a short transcript simulating a live interaction.
+- Judge:
+  - Adaptability and flow
+  - Warmth, presence, and rapport
+  - Creativity and charm under pressure
 
-json
+Score from **0 to 10**:
+- 10: Natural, engaging, achieved the intended outcome
+- 0: Blocked, ignored, irrelevant, or not attempted
+- If the transcript ends with *success*, then give them a 10.
+---
+
+### 📊 Final Scoring
+
+Output a JSON object like this:
+
+\`\`\`json
 {
-  "charm": number between 200-800 in increments of 10,
-  "execution": number between 200-800 in increments of 10
+  "slideIntoDms": number from 0 to 30,
+  "realTimeLive": number from 0 to 10,
+  "balance": number from 0 to 10
 }
-Every test-taker receives a minimum of 200 in each category.
+\`\`\`
 
-Add up the partial points from MCQ, DMs, and the live section.
+- "balance" reflects the distribution between charm and execution.  
+  - 0 = all charm, no execution  
+  - 10 = all execution, no charm  
+  - 5 = well-balanced
 
-Use your judgment to split the total between charm and execution, based on the performance across the sections.
-
-Round both scores to the nearest multiple of 10.
-
-Do not include any explanation or commentary. Only return the JSON object.
+Do not include explanations — only return the JSON object.
 
 Inputs:
 Here is the full test:
 ${test}
 
-Here is the MCQ answers:
-${parsedMcq}
-
-Here is the DMs answers:
+Here are the DMs answers:
 ${parsedDms}
 
 Here is the one-on-one live transcript:
-${parsedLive}`
+${parsedLive}
+`;
+
 
 
     const response = await llm.invoke(prompt);
@@ -486,7 +499,46 @@ ${parsedLive}`
     if (match && match[1]) {
         const parsedJson  = JSON.parse(match[1]);
         console.log(parsedJson)
-        return parsedJson
+        
+        const amtPerDmQuestion = Number(400/3)
+        let dmsSectionScore = (Number(parsedJson.slideIntoDms)/10)*amtPerDmQuestion
+
+        const liveOneOnOneScore = Number(parsedJson.realTimeLive/10)*200
+        
+
+       const totalScore = Math.ceil(Number(dmsSectionScore + liveOneOnOneScore + totalEarned) / 10) * 10;
+
+    const split = parsedJson.balance;
+
+// NEW: Split the total score evenly, and ensure total stays correct
+    const charmScore = Math.round(totalScore * ((10 - split) / 10));
+    const executionScore = totalScore - charmScore;
+
+// Clamp to 200 min, 800 max
+    const newScore = {
+        charm: Math.max(200, Math.min(800, Math.round(charmScore / 10) * 10)),
+        execution: Math.max(200, Math.min(800, Math.round(executionScore / 10) * 10))
+    };
+
+// console.log("new score", newScore);
+// return newScore;
+
+        
+
+
+        // 
+
+     
+        console.log("new score", newScore)
+        
+
+
+
+
+
+
+
+        return newScore
     } else {
         console.log("the parsed json didn't work", match)
         return {
@@ -500,7 +552,24 @@ ${parsedLive}`
 
 }
 
+// async function testShit() {
+    
+// gradeTest(
+//   '4c5f86a9-38cc-4427-8dbc-109cd393807f',
+//    [
+//     '', '', '', '', '', '', '',
+//     '', '', '', '', '', '', '',
+//     '', '', '', '', '', ''
+//   ],
+// [ { messages: [Array] }, [], [] ],
+//   [],
+//   await locateEntry("uuid", "4c5f86a9-38cc-4427-8dbc-109cd393807f")
+// )
 
+// }
+
+
+// testShit();
 
 
 

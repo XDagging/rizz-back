@@ -28,7 +28,7 @@ const region: string = "us-east-1"
 // @ts-ignore
 import session from "express-session"
 
-import {locateEntry, addEntry, updateEntry} from "./databaseFunctions.js"
+import {locateEntry, addEntry, updateEntry, getAllEntries} from "./databaseFunctions.js"
 // ...existing code...
 // Use require for memorystore if import fails
 
@@ -73,6 +73,44 @@ app.use(sessionMiddleware)
 
 app.use(passport.initialize());
 app.use(passport.session());
+import {CronJob} from "cron"
+// const { CronJob } = require('cron');
+
+
+async function midnightFunctions() {
+    console.log("Midnight functions were called")
+    const allEntries: any[] = await getAllEntries();
+    console.log("theres well all the entries", allEntries)
+    for (let i=0; i<allEntries.length; i++) {
+        const currentUser = allEntries[i];
+
+        if (!currentUser.fullTest) {
+            await updateEntry("uuid", currentUser.uuid, {
+                testsAvailable: 2,
+            })
+        } else {
+            continue;
+        }
+    }
+    
+
+
+
+}
+
+
+// console.log("Testing midnight functions")
+// midnightFunctions();
+
+const job = CronJob.from({
+	cronTime: '0 0 0 * * *',
+	onTick: midnightFunctions,
+	start: true,
+})
+
+
+
+
 
 if (process.env.NODE_ENV === "DEV") {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";

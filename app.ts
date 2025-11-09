@@ -63,12 +63,14 @@ export const sessionMiddleware = session({
         httpOnly: true,     
         sameSite: "none",
         secure: true,
+        domain: ".toomanyheys.com"
     },
     resave: false,
     saveUninitialized: true,
     store: new MemoryStore({
         checkPeriod: 86400000 
     }) as any, 
+    proxy: true,
 })
 app.use(sessionMiddleware)
 

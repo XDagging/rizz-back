@@ -23,6 +23,7 @@ import http from "http";
 import bodyParser from "body-parser"
 // const bodyParser = require("body-parser")
 const app = express();
+// app.set('trust proxy', true);
 const region: string = "us-east-1"
 // const session = require("express-session");
 // @ts-ignore
@@ -133,12 +134,12 @@ if (process.env.NODE_ENV === "DEV") {
 
     // STEP 1: This will be where the certificates are stored.
 
-    options = {
-        key: fs.readFileSync("/etc/letsencrypt/live/api.toomanyheys.com/privkey.pem"),
-        cert: fs.readFileSync('/etc/letsencrypt/live/api.toomanyheys.com/fullchain.pem'),
-        // Remove this line once done with production
-        rejectUnauthorized: false
-    };    
+    // options = {
+    //     key: fs.readFileSync("/etc/letsencrypt/live/api.toomanyheys.com/privkey.pem"),
+    //     cert: fs.readFileSync('/etc/letsencrypt/live/api.toomanyheys.com/fullchain.pem'),
+    //     // Remove this line once done with production
+    //     rejectUnauthorized: false
+    // };    
 
     app.use(cors({
         origin: "https://toomanyheys.com",
@@ -291,7 +292,7 @@ passport.use(new LocalStrategy( { usernameField: "email" },async(email, password
 app.use(bodyParser.json({limit: "10mb"}))
 
 
-const server = https.createServer(options, app);
+const server = http.createServer(app);
 // const server = http.createServer(app)
 startWebsocket(server);
 
@@ -577,11 +578,6 @@ app.get("/getUser", (req,res) => {
                         uuid: user.uuid,
                         name: cmod.decrypt(user.name),
                         email: cmod.decrypt(user.email),
-                        highestScore: user.highestScore,
-                        timesTaken: user.timesTaken,
-                        testsAvailable: user.testsAvailable,
-                        allTests: user.allTests,
-                        imgUrl: user.imgUrl
                 }
                 // 
                 res.status(200).send(craftRequest(200,availableUser))

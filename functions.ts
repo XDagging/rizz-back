@@ -13,7 +13,7 @@ function authenticateUser(req: Request) {
 
     return new Promise((resolve) => {
         let sessionId = req.sessionID;
-
+        console.log("this is the user resolved", req.user);
         if (!sessionId) {
             resolve("No user found");
         } else {

@@ -23,7 +23,7 @@ import http from "http";
 import bodyParser from "body-parser"
 // const bodyParser = require("body-parser")
 const app = express();
-// app.set('trust proxy', true);
+app.set('trust proxy', 1);
 const region: string = "us-east-1"
 // const session = require("express-session");
 // @ts-ignore

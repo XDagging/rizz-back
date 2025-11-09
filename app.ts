@@ -580,6 +580,11 @@ app.get("/getUser", (req,res) => {
                         uuid: user.uuid,
                         name: cmod.decrypt(user.name),
                         email: cmod.decrypt(user.email),
+                        imgUrl: user.imgUrl,
+                        highestScore: user.highestScore,
+                        timesTaken: user.timesTaken,
+                        testsAvailable: user.testsAvailable,
+                        allTests: user.allTests
                 }
                 // 
                 res.status(200).send(craftRequest(200,availableUser))
